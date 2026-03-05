@@ -6,7 +6,239 @@
 
 ---
 
-## 📦 Phases
+- [🏗️ Application Overview](#️-application-overview)
+  - [� Getting Started](#-getting-started)
+    - [Prerequisites](#prerequisites)
+    - [Environment Setup](#environment-setup)
+    - [Database Setup](#database-setup)
+    - [Installation](#installation)
+    - [Running the Project](#running-the-project)
+    - [Running Tests](#running-tests)
+    - [Additional Commands](#additional-commands)
+    - [Troubleshooting](#troubleshooting)
+  - [�📦 Phases](#-phases)
+    - [**Phase 1 — Project Scaffolding \& Environment Setup**](#phase-1--project-scaffolding--environment-setup)
+    - [**Phase 2 — Database Design \& Migrations**](#phase-2--database-design--migrations)
+    - [**Phase 3 — Authentication Module**](#phase-3--authentication-module)
+    - [**Phase 4 — Restaurant Module (API + UI)**](#phase-4--restaurant-module-api--ui)
+    - [**Phase 5 — Analytics \& Dashboard Module (API + UI)**](#phase-5--analytics--dashboard-module-api--ui)
+  - [🗺️ User Flow Summary](#️-user-flow-summary)
+
+
+---
+
+## � Getting Started
+
+### Prerequisites
+
+Before you begin, ensure you have the following installed on your system:
+
+- **PHP 8.3 or higher** - Check with: `php --version`
+- **Composer** - PHP dependency manager
+- **Node.js 20 or higher** - Check with: `node --version`
+- **npm** - Node package manager (comes with Node.js)
+- **MySQL 8.0 or higher** - Database server
+
+### Environment Setup
+
+1. **Verify PHP Version:**
+   ```bash
+   php --version
+   ```
+   Should show PHP 8.3.x or higher.
+
+2. **Verify Node.js Version:**
+   ```bash
+   node --version
+   ```
+   Should show v20.x.x or higher.
+
+3. **Verify npm Version:**
+   ```bash
+   npm --version
+   ```
+   Should show 10.x.x or higher.
+
+### Database Setup
+
+Create two MySQL databases - one for the main application and one for testing:
+
+```sql
+-- Create main database
+CREATE DATABASE restaurant_dashboard CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- Create testing database
+CREATE DATABASE restaurant_dashboard_testing CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- Optional: Create a database user (recommended for security)
+CREATE USER 'restaurant_user'@'localhost' IDENTIFIED BY 'your_secure_password';
+GRANT ALL PRIVILEGES ON restaurant_dashboard.* TO 'restaurant_user'@'localhost';
+GRANT ALL PRIVILEGES ON restaurant_dashboard_testing.* TO 'restaurant_user'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone <repository-url>
+   cd restaurant-dashboard
+   ```
+
+2. **Install PHP dependencies:**
+   ```bash
+   composer install
+   ```
+
+3. **Install Node.js dependencies:**
+   ```bash
+   npm install
+   ```
+
+4. **Environment Configuration:**
+   ```bash
+   cp .env.example .env
+   ```
+
+   Edit `.env` file and configure the following:
+   ```env
+   APP_NAME="Restaurant Analytics Dashboard"
+   APP_ENV=local
+   APP_KEY=base64:your_app_key_here
+   APP_DEBUG=true
+   APP_URL=http://localhost:8000
+
+   # Database Configuration
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=restaurant_dashboard
+   DB_USERNAME=your_mysql_username
+   DB_PASSWORD=your_mysql_password
+
+   # Testing Database (separate from main DB)
+   DB_TESTING_DATABASE=restaurant_dashboard_testing
+
+   # Cache Configuration (File-based)
+   CACHE_DRIVER=file
+
+   # Sanctum Configuration
+   SANCTUM_STATEFUL_DOMAINS=localhost:3000,127.0.0.1:3000
+   ```
+
+5. **Generate Application Key:**
+   ```bash
+   php artisan key:generate
+   ```
+
+6. **Run Database Migrations and Seeders:**
+   ```bash
+   php artisan migrate --seed
+   ```
+
+### Running the Project
+
+1. **Start the Laravel Backend Server:**
+   ```bash
+   php artisan serve
+   ```
+   Server will be available at: `http://localhost:8000`
+
+2. **Start the React Frontend (Vite Dev Server):**
+   ```bash
+   npm run dev
+   ```
+   Frontend will be available at: `http://localhost:3000`
+
+3. **Access the Application:**
+   - Open your browser and navigate to `http://localhost:3000`
+   - Register a new account or login with existing credentials
+   - Start exploring the restaurant analytics dashboard!
+
+### Running Tests
+
+The project uses **Pest** as the testing framework. Run the full test suite:
+
+```bash
+php artisan test
+```
+
+Or run specific test groups:
+```bash
+# Run only feature tests
+php artisan test --testsuite=Feature
+php artisan test --filter=Phase1
+php artisan test --filter=Phase2
+php artisan test --filter=Phase3
+php artisan test --filter=Phase4
+php artisan test --filter=Phase5
+
+# Run only unit tests
+php artisan test --testsuite=Unit
+
+# Run tests with coverage
+php artisan test --coverage
+```
+
+### Additional Commands
+
+```bash
+# Clear all caches
+php artisan cache:clear
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+
+# Run database migrations (without seeders)
+php artisan migrate
+
+# Rollback migrations
+php artisan migrate:rollback
+
+# Run only seeders (after migrations exist)
+php artisan db:seed
+
+# Check Laravel/PHP code style
+./vendor/bin/pint --test
+
+# Fix Laravel/PHP code style
+./vendor/bin/pint
+
+# Check frontend code style
+npm run format
+```
+
+### Troubleshooting
+
+**Common Issues:**
+
+1. **Port 8000 already in use:**
+   ```bash
+   # Use a different port
+   php artisan serve --port=8001
+   ```
+
+2. **Port 3000 already in use:**
+   ```bash
+   # Use a different port
+   npm run dev -- --port 3001
+   ```
+
+3. **Database connection issues:**
+   - Verify MySQL is running
+   - Check database credentials in `.env`
+   - Ensure databases exist
+
+4. **CORS issues:**
+   - Make sure Sanctum domains are configured correctly in `.env`
+   - Clear config cache: `php artisan config:clear`
+
+5. **Cache issues:**
+   - Clear all caches: `php artisan cache:clear && php artisan config:clear`
+
+---
+
+## �📦 Phases
 
 ---
 
@@ -165,69 +397,6 @@
 
 ---
 
-### **Phase 6 — Performance & Optimization**
-> *What separates a good submission from a great one*
-
-- File cache layer audit across all analytics + restaurant endpoints
-- Cache key naming convention documented (`module_action_paramhash`)
-- DB query optimization — `EXPLAIN` analysis, eager loading, avoiding N+1
-- API response compression (gzip via middleware)
-- React: `useMemo` / `useCallback` on expensive chart computations
-- **TanStack Query** for data fetching — client-side caching, background refetch, stale time config
-- Debounced search inputs (300ms)
-- Pagination on all list endpoints
-
-> 🔮 *Redis enhancement path: swap `CACHE_DRIVER=file` → `CACHE_DRIVER=redis`, add Redis config — zero code changes needed*
-
-**Pest Tests — Phase 6**
-```
-✔ repeated identical API requests return cached response within TTL
-✔ cache is bypassed correctly after TTL expiry
-✔ N+1 queries are not present on restaurant listing (assert query count)
-✔ analytics aggregation query count is within acceptable threshold
-```
-
----
-
-### **Phase 7 — Code Quality & Documentation**
-> *Makes the interviewer trust the codebase*
-
-- PHPDoc blocks on all service methods
-- API documentation — **Postman collection** exported with all endpoints, example payloads, and responses
-- Inline comments on non-obvious logic (cache key strategy, aggregation logic, TTL decisions)
-- ESLint + Prettier enforced across `resources/js`
-- `README.md` — full local setup guide:
-  - Prerequisites (PHP 8.3, Node 20, MySQL, Composer)
-  - `.env` setup (with annotated example)
-  - `composer install && php artisan migrate --seed`
-  - `php artisan serve` + `npm run dev`
-  - `php artisan test` to run full Pest suite
-  - Cache driver note + Redis upgrade path
-- Folder structure documentation (backend + frontend)
-
----
-
-### **Phase 8 — Testing Consolidation & CI Readiness**
-> *Demonstrates engineering maturity*
-
-- Full **Pest** test suite review — all phases consolidated
-- `TestCase` base class setup with `RefreshDatabase` trait
-- Shared test helpers: `actingAsUser()`, `createRestaurantWithOrders()` helpers
-- `DatabaseSeeder` usable in test environment via `seed()` in tests
-- Feature test coverage summary per module:
-
-| Module | Tests |
-|---|---|
-| Auth | 9 |
-| Restaurants | 9 |
-| Analytics | 16 |
-| Cache / Performance | 4 |
-| **Total** | **38+** |
-
-- GitHub Actions-ready `ci.yml` stub (runs `php artisan test` on push)
-
----
-
 ## 🗺️ User Flow Summary
 
 ```
@@ -247,13 +416,3 @@ Logout
 
 ---
 
-## 🔮 Enhancement Backlog (Post-Submission)
-| Enhancement | Effort |
-|---|---|
-| Swap file cache → Redis | Minimal (`.env` change + config) |
-| Rate limiting on API endpoints | Low |
-| Export orders to CSV | Medium |
-| Role-based access (admin vs viewer) | Medium |
-| Real-time order updates (Laravel Echo + Pusher) | High |
-
----
