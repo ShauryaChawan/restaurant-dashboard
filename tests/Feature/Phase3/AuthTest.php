@@ -182,18 +182,18 @@ describe('Phase 3 — Authentication', function () {
     // ── Logout --------------------------------------------------────
 
     it('logs out and invalidates the token', function () {
-    $user  = User::factory()->create();
-    $token = $user->createToken('auth_token')->plainTextToken;
+        $user = User::factory()->create();
+        $token = $user->createToken('auth_token')->plainTextToken;
 
-    $response = $this->withHeader('Authorization', "Bearer {$token}")
-        ->postJson('/api/v1/auth/logout');
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/v1/auth/logout');
 
-    $response->assertStatus(200);
-    $response->assertJson(['status' => 'success', 'message' => 'Logged out successfully.']);
+        $response->assertStatus(200);
+        $response->assertJson(['status' => 'success', 'message' => 'Logged out successfully.']);
 
-    // Verify the token was actually deleted from the database
-    expect($user->tokens()->count())->toBe(0);
-});
+        // Verify the token was actually deleted from the database
+        expect($user->tokens()->count())->toBe(0);
+    });
 
     it('returns 401 on logout when not authenticated', function () {
         $response = $this->postJson('/api/v1/auth/logout');

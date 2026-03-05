@@ -19,23 +19,28 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        // Handle route not found (404)
-        $exceptions->render(function (NotFoundHttpException $e, $request) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Not found',
-                    'data' => null,
-                ], 404);
-            }
-        });
-
         // Handle model not found (route model binding failures)
         $exceptions->render(function (ModelNotFoundException $e, $request) {
             if ($request->expectsJson()) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Resource not found',
+                    'data' => null,
+                ], 404);
+            }
+        });
+
+        // Handle route not found (404)
+        $exceptions->render(function (NotFoundHttpException $e, $request) {
+            if ($request->expectsJson()) {
+                // Check if this was triggered by a ModelNotFoundException
+                $message = $e->getPrevious() instanceof ModelNotFoundException
+                    ? 'Resource not found'
+                    : 'Not found';
+
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $message,
                     'data' => null,
                 ], 404);
             }

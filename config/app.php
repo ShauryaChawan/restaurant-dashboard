@@ -123,4 +123,6 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'cache_enabled' => (bool) env('CACHE_ENABLED', true),
+
 ];

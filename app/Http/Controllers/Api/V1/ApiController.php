@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
@@ -24,6 +25,22 @@ abstract class ApiController extends Controller
      */
     protected function success(mixed $data = null, string $message = 'Success', int $code = Response::HTTP_OK): JsonResponse
     {
+        if ($data instanceof LengthAwarePaginator) {
+            return response()->json([
+                'status' => 'success',
+                'message' => $message,
+                'data' => $data->items(),
+                'meta' => [
+                    'current_page' => $data->currentPage(),
+                    'per_page' => $data->perPage(),
+                    'total' => $data->total(),
+                    'last_page' => $data->lastPage(),
+                    'from' => $data->firstItem(),
+                    'to' => $data->lastItem(),
+                ],
+            ], $code);
+        }
+
         return response()->json([
             'status' => 'success',
             'message' => $message,
