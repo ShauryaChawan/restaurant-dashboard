@@ -26,7 +26,7 @@ return new class extends Migration
             $table->tinyInteger('status')->default(2);
             $table->timestamps();
 
-            // --- Indexes ----------------------------------------
+            // --- Indexes --------------------------------------------------------------------------------
             // Composite index: covers the most common analytics query pattern
             // (filter by restaurant AND date range simultaneously)
             $table->index(['restaurant_id', 'ordered_at'], 'idx_orders_restaurant_date');

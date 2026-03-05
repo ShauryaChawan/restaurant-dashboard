@@ -42,7 +42,7 @@ class Restaurant extends Model
         'rating' => 'float',
     ];
 
-    // ── Relationships ──────────────────────────────────────────────────
+    // --- Relationships ----------------------------------------------
 
     /**
      * A restaurant has many orders.

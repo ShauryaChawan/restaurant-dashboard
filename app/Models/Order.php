@@ -47,7 +47,7 @@ class Order extends Model
         'status' => OrderStatus::class,
     ];
 
-    // ── Relationships ──────────────────────────────────────────────────
+    // --- Relationships ----------------------------------------------
 
     /**
      * An order belongs to a restaurant.

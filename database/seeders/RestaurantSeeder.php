@@ -38,6 +38,6 @@ class RestaurantSeeder extends Seeder
             ]);
         }
 
-        $this->command->info('✅ Restaurants seeded: '.count($restaurants).' records');
+        // $this->command->info('✅ Restaurants seeded: '.count($restaurants).' records');
     }
 }

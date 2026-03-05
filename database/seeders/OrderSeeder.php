@@ -112,6 +112,6 @@ class OrderSeeder extends Seeder
             Order::insert($chunk);
         }
 
-        $this->command->info('✅ Orders seeded: '.count($rows).' records');
+        // $this->command->info('✅ Orders seeded: '.count($rows).' records');
     }
 }

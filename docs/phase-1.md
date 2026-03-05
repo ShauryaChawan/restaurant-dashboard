@@ -633,13 +633,13 @@ use App\Http\Controllers\Api\V1\AnalyticsController;
 
 Route::prefix('v1')->group(function () {
 
-    // ── Public Auth Routes ──────────────────────────────────────────────
+    // ── Public Auth Routes ----------------------------------------
     Route::prefix('auth')->group(function () {
         Route::post('/register', [AuthController::class, 'register']);
         Route::post('/login',    [AuthController::class, 'login']);
     });
 
-    // ── Protected Routes (Sanctum) ──────────────────────────────────────
+    // ── Protected Routes (Sanctum) ----------------------------------------
     Route::middleware('auth:sanctum')->group(function () {
 
         Route::post('/auth/logout', [AuthController::class, 'logout']);
