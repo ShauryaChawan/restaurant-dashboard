@@ -93,8 +93,7 @@ class OrderSeeder extends Seeder
             }
 
             // Pick a random status from the weighted pool
-            $status = $statusPool[array_rand(array_fill(0, $poolSize, null))];
-
+            $status = $statusPool[array_rand($statusPool)];
             $now = now();
 
             $rows[] = [

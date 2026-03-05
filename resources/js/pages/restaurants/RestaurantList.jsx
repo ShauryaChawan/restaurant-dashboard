@@ -68,23 +68,23 @@ export default function RestaurantList() {
 
   // ── Render ─────────────────────────────────────────────────────────
   return (
-    <div style={{ padding: '24px' }}>
-      <h1>Restaurants</h1>
+    <main className="px-6 py-10">
+      <h1 className="text-2xl font-semibold text-gray-900 mb-6">Restaurants</h1>
 
       {/* ── Search & Filters ── */}
-      <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
+      <div className="flex gap-3 mb-6 flex-wrap">
         <input
           type="text"
           placeholder="Search name, cuisine, location..."
           value={search}
           onChange={handleFilterChange(setSearch)}
-          style={{ padding: '8px', flex: '1', minWidth: '200px' }}
+          className="px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent flex-1 min-w-64"
         />
 
         <select
           value={cuisine}
           onChange={handleFilterChange(setCuisine)}
-          style={{ padding: '8px' }}
+          className="px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
         >
           <option value="">All Cuisines</option>
           <option value="North Indian">North Indian</option>
@@ -96,7 +96,7 @@ export default function RestaurantList() {
         <select
           value={location}
           onChange={handleFilterChange(setLocation)}
-          style={{ padding: '8px' }}
+          className="px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
         >
           <option value="">All Locations</option>
           <option value="Bangalore">Bangalore</option>
@@ -218,6 +218,6 @@ export default function RestaurantList() {
           </div>
         </>
       )}
-    </div>
+    </main>
   );
 }

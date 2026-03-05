@@ -1,4 +1,5 @@
 import { Navigate, Outlet } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 /**
  * PrivateRoute
@@ -8,7 +9,6 @@ import { Navigate, Outlet } from 'react-router-dom';
  * All protected pages are wrapped with this component in AppRouter.
  */
 export default function PrivateRoute() {
-  const token = localStorage.getItem('auth_token');
-
-  return token ? <Outlet /> : <Navigate to="/login" replace />;
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
 }
