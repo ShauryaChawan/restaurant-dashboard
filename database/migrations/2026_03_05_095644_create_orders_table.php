@@ -33,6 +33,7 @@ return new class extends Migration
 
             // Individual indexes for single-column filter queries
             $table->index('ordered_at', 'idx_orders_date');
+            $table->index('order_amount', 'idx_orders_amount');
             $table->index('status', 'idx_orders_status');
         });
     }

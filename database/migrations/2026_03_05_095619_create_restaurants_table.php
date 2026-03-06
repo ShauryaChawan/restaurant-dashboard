@@ -16,8 +16,12 @@ return new class extends Migration
             $table->string('name');
             $table->string('location');
             $table->string('cuisine');
-            $table->decimal('rating', 3, 1)->nullable(); // e.g. 4.5 — not in JSON, nullable for future use
+            $table->decimal('rating', 2, 1)->nullable();
             $table->timestamps();
+
+            // Indexes
+            $table->index('cuisine');
+            $table->index('location');
         });
     }
 

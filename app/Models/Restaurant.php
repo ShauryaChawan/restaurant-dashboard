@@ -39,7 +39,7 @@ class Restaurant extends Model
      * The attributes that should be cast.
      */
     protected $casts = [
-        'rating' => 'float',
+        'rating' => 'decimal:1',
     ];
 
     // --- Relationships ----------------------------------------------
