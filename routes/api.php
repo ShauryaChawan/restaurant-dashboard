@@ -9,8 +9,8 @@ Route::prefix('v1')->group(function () {
 
     // --- Public Auth Routes ----------------------------------------
     Route::prefix('auth')->group(function () {
-        Route::post('/register', [AuthController::class, 'register']);
-        Route::post('/login', [AuthController::class, 'login']);
+        Route::middleware('throttle:60,1')->post('/register', [AuthController::class, 'register']);
+        Route::middleware('throttle:60,1')->post('/login', [AuthController::class, 'login']);
     });
 
     // --- Protected Routes (Sanctum) ----------------------------------------
