@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Models\Restaurant;
 use App\Services\RestaurantService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -26,16 +27,13 @@ class RestaurantController extends ApiController
     }
 
     /**
-     * GET /api/v1/restaurants/{id}
+     * GET /api/v1/restaurants/{restaurant}
      *
      * Returns a single restaurant.
-     * ModelNotFoundException is caught by the global exception handler
-     * and returns a 404 JSON response automatically.
+     * Uses route model binding to resolve the Restaurant model.
      */
-    public function show(int $id): JsonResponse
+    public function show(Restaurant $restaurant): JsonResponse
     {
-        $restaurant = $this->restaurantService->findById($id);
-
         return $this->success($restaurant, 'Restaurant fetched successfully.');
     }
 }

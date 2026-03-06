@@ -21,11 +21,11 @@ Route::prefix('v1')->group(function () {
 
         // Restaurants
         Route::get('/restaurants', [RestaurantController::class, 'index']);
-        Route::get('/restaurants/{id}', [RestaurantController::class, 'show']);
+        Route::get('/restaurants/{restaurant}', [RestaurantController::class, 'show']);
 
         // Analytics
         Route::prefix('analytics')->group(function () {
-            Route::get('/restaurant/{id}', [AnalyticsController::class, 'restaurant']);
+            Route::get('/restaurant/{restaurant}', [AnalyticsController::class, 'restaurant']);
             Route::get('/top-restaurants', [AnalyticsController::class, 'topRestaurants']);
             Route::get('/orders', [AnalyticsController::class, 'orders']);
         });

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Models\Restaurant;
 use App\Services\AnalyticsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -18,7 +19,7 @@ class AnalyticsController extends ApiController
     public function __construct(private readonly AnalyticsService $analyticsService) {}
 
     /**
-     * GET /api/v1/analytics/restaurant/{id}
+     * GET /api/v1/analytics/restaurant/{restaurant}
      *
      * Returns daily orders, daily revenue, AOV, and peak hour per day
      * for the given restaurant within the requested date range.
@@ -27,7 +28,7 @@ class AnalyticsController extends ApiController
      *   start_date (required) — Y-m-d
      *   end_date   (required) — Y-m-d, must be >= start_date
      */
-    public function restaurant(Request $request, int $id): JsonResponse
+    public function restaurant(Request $request, Restaurant $restaurant): JsonResponse
     {
         $validated = $request->validate([
             'start_date' => ['required', 'date_format:Y-m-d'],
@@ -35,7 +36,7 @@ class AnalyticsController extends ApiController
         ]);
 
         $data = $this->analyticsService->getRestaurantAnalytics(
-            $id,
+            $restaurant->id,
             $validated['start_date'],
             $validated['end_date']
         );
