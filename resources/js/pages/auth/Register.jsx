@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { register } from '../../api/auth';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 
 export default function Register() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
     username: '',
+    name: '',
     email: '',
     password: '',
     password_confirmation: '',
@@ -14,6 +16,7 @@ export default function Register() {
   const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   function handleChange(e) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -23,6 +26,7 @@ export default function Register() {
   function validate() {
     const errs = {};
     if (!form.username) errs.username = 'Username is required.';
+    if (!form.name) errs.name = 'Name is required.';
     if (!form.email) errs.email = 'Email is required.';
     if (!form.password) errs.password = 'Password is required.';
     else if (form.password.length < 8) errs.password = 'Password must be at least 8 characters.';
@@ -62,6 +66,7 @@ export default function Register() {
 
   const fields = [
     { name: 'username', label: 'Username', type: 'text', placeholder: 'johndoe' },
+    { name: 'name', label: 'Name', type: 'text', placeholder: 'John Doe' },
     { name: 'email', label: 'Email', type: 'email', placeholder: 'you@example.com' },
     { name: 'password', label: 'Password', type: 'password', placeholder: '••••••••' },
     {
@@ -88,26 +93,53 @@ export default function Register() {
           )}
 
           <form onSubmit={handleSubmit} noValidate>
-            {fields.map((field) => (
-              <div key={field.name} className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {field.label}
-                </label>
-                <input
-                  type={field.type}
-                  name={field.name}
-                  value={form[field.name]}
-                  onChange={handleChange}
-                  placeholder={field.placeholder}
-                  className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition
-                    focus:ring-2 focus:ring-gray-900 focus:border-transparent
-                    ${errors[field.name] ? 'border-red-400 bg-red-50' : 'border-gray-300 bg-white'}`}
-                />
-                {errors[field.name] && (
-                  <p className="mt-1 text-xs text-red-600">{errors[field.name]}</p>
-                )}
-              </div>
-            ))}
+            {fields.map((field) => {
+              const isPassword = field.name === 'password';
+              // field.name === 'password' || field.name === 'password_confirmation';
+
+              return (
+                <div key={field.name} className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {field.label}
+                  </label>
+
+                  <div className="relative">
+                    <input
+                      type={isPassword ? (showPassword ? 'text' : 'password') : field.type}
+                      name={field.name}
+                      value={form[field.name] || ''}
+                      onChange={handleChange}
+                      placeholder={field.placeholder}
+                      className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition
+                                                focus:ring-2 focus:ring-gray-900 focus:border-transparent
+                                                ${errors[field.name] ? 'border-red-400 bg-red-50' : 'border-gray-300 bg-white'}
+                                                ${isPassword ? 'pr-10' : ''}`}
+                      style={
+                        isPassword
+                          ? {
+                              WebkitTextSecurity: showPassword ? 'none' : undefined,
+                            }
+                          : {}
+                      }
+                    />
+
+                    {isPassword && (
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      >
+                        {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+                      </button>
+                    )}
+                  </div>
+
+                  {errors[field.name] && (
+                    <p className="mt-1 text-xs text-red-600">{errors[field.name]}</p>
+                  )}
+                </div>
+              );
+            })}
 
             <button
               type="submit"

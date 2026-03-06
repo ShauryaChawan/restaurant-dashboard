@@ -23,9 +23,11 @@ instance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid — clear storage and redirect to login
-      localStorage.removeItem('auth_token');
-      window.location.href = '/login';
+      const isAuthRoute = ['/login', '/register'].includes(window.location.pathname);
+      if (!isAuthRoute) {
+        localStorage.removeItem('auth_token');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
