@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [env('APP_URL', 'http://restaurant-dashboard.test')],
+    'allowed_origins' => [env('APP_URL', 'http://restaurant-dashboard-v2.test'), env('FRONTEND_URL', 'http://localhost:3000')],
 
     'allowed_origins_patterns' => [],
 
