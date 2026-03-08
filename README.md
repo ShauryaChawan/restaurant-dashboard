@@ -1,8 +1,10 @@
 # 🏗️ Application Overview
 
-**Stack:** Laravel 12 + Sanctum + File Cache + React (Vite, inside `resources/js`) + MySQL + Pest
+**Stack:** Laravel 12 API + Next.js (React) Frontend + Sanctum + MySQL + Pest + Scramble (API Docs)
 
-**Repo structure:** Monorepo — single Laravel project, React lives in `resources/js`, compiled via Vite.
+**Repo structure:**
+- `backend/`: Laravel 12 API providing data and authentication logic.
+- `client/`: Standalone Next.js 16 (App Router) frontend application.
 
 ---
 
@@ -85,18 +87,21 @@ FLUSH PRIVILEGES;
    cd restaurant-dashboard
    ```
 
-2. **Install PHP dependencies:**
+2. **Backend Setup:**
    ```bash
+   cd backend
    composer install
    ```
 
-3. **Install Node.js dependencies:**
+3. **Frontend Setup:**
    ```bash
+   cd ../client
    npm install
    ```
 
-4. **Environment Configuration:**
+4. **Environment Configuration for Backend:**
    ```bash
+   cd backend
    cp .env.example .env
    ```
 
@@ -107,6 +112,7 @@ FLUSH PRIVILEGES;
    APP_KEY=base64:your_app_key_here
    APP_DEBUG=true
    APP_URL=http://localhost:8000
+   FRONTEND_URL=http://localhost:3000
 
    # Database Configuration
    DB_CONNECTION=mysql
@@ -126,34 +132,39 @@ FLUSH PRIVILEGES;
    SANCTUM_STATEFUL_DOMAINS=localhost:3000,127.0.0.1:3000
    ```
 
-5. **Generate Application Key:**
+5. **Generate Application Key & Build Database:**
    ```bash
    php artisan key:generate
+   php artisan migrate:fresh --seed
    ```
 
-6. **Run Database Migrations and Seeders:**
+6. **Environment Configuration for Frontend:**
    ```bash
-   php artisan migrate --seed
+   cd ../client
+   cp env.example .env.local
    ```
+   Ensure `.env.local` has: `NEXT_PUBLIC_API_URL=http://localhost:8000`
 
 ### Running the Project
 
-1. **Start the Laravel Backend Server:**
+1. **Start the Laravel Backend API:**
    ```bash
+   cd backend
    php artisan serve
    ```
-   Server will be available at: `http://localhost:8000`
+   - API will be available at: `http://localhost:8000`
+   - **Interactive API Documentation (Scramble):** `http://localhost:8000/docs/api`
 
-2. **Start the React Frontend (Vite Dev Server):**
+2. **Start the Next.js Frontend Development Server:**
    ```bash
+   cd client
    npm run dev
    ```
-   Frontend will be available at: `http://localhost:3000`
+   - Frontend will be available at: `http://localhost:3000`
 
 3. **Access the Application:**
    - Open your browser and navigate to `http://localhost:3000`
-   - Register a new account or login with existing credentials
-   - Start exploring the restaurant analytics dashboard!
+   - Log in with default seeded credentials (`test@example.com` / `password`), or register a new account!
 
 ### Running Tests
 
