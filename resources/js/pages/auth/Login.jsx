@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { login } from '../../api/auth';
 import { toast } from 'react-hot-toast';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ export default function Login() {
   const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const justRegistered = searchParams.get('registered') === '1';
 
@@ -40,12 +42,14 @@ export default function Login() {
     e.preventDefault();
     setServerError('');
     const errs = validate();
+
     if (Object.keys(errs).length) {
       setErrors(errs);
       return;
     }
 
     setLoading(true);
+
     try {
       const data = await login(form);
       loginCtx(data.token, data.user);
@@ -68,7 +72,6 @@ export default function Login() {
         </div>
 
         <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
-
           {serverError && (
             <div className="mb-4 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
               {serverError}
@@ -76,8 +79,10 @@ export default function Login() {
           )}
 
           <form onSubmit={handleSubmit} noValidate>
+            {/* EMAIL */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+
               <input
                 type="email"
                 name="email"
@@ -88,21 +93,35 @@ export default function Login() {
                   focus:ring-2 focus:ring-gray-900 focus:border-transparent
                   ${errors.email ? 'border-red-400 bg-red-50' : 'border-gray-300 bg-white'}`}
               />
+
               {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email}</p>}
             </div>
 
+            {/* PASSWORD */}
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-              <input
-                type="password"
-                name="password"
-                value={form.password}
-                onChange={handleChange}
-                placeholder="••••••••"
-                className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition
-                  focus:ring-2 focus:ring-gray-900 focus:border-transparent
-                  ${errors.password ? 'border-red-400 bg-red-50' : 'border-gray-300 bg-white'}`}
-              />
+
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  value={form.password}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  className={`w-full rounded-lg border px-3 py-2 pr-10 text-sm outline-none transition
+                    focus:ring-2 focus:ring-gray-900 focus:border-transparent
+                    ${errors.password ? 'border-red-400 bg-red-50' : 'border-gray-300 bg-white'}`}
+                />
+
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                >
+                  {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+                </button>
+              </div>
+
               {errors.password && <p className="mt-1 text-xs text-red-600">{errors.password}</p>}
             </div>
 
