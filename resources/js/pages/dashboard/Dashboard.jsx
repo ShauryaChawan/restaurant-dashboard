@@ -9,7 +9,7 @@ function defaultDates() {
   return {
     startDate: start.toISOString().split('T')[0],
     endDate: end.toISOString().split('T')[0],
-};
+  };
 }
 
 const DATE_FILTERS = [

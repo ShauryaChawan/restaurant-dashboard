@@ -21,7 +21,8 @@ const FILTER_CONFIG = [
       { label: 'Italian', val: 'Italian' },
       { label: 'American', val: 'American' },
     ],
-    className: 'px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent',
+    className:
+      'px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent',
   },
   {
     key: 'location',
@@ -32,7 +33,8 @@ const FILTER_CONFIG = [
       { label: 'Delhi', val: 'Delhi' },
       { label: 'Hyderabad', val: 'Hyderabad' },
     ],
-    className: 'px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent',
+    className:
+      'px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent',
   },
   {
     key: 'rating',
@@ -127,7 +129,8 @@ export default function RestaurantList() {
 
         {FILTER_CONFIG.map(({ key, options, className = '', style = {} }, idx) => {
           const value = key === 'cuisine' ? cuisine : key === 'location' ? location : rating;
-          const setter = key === 'cuisine' ? setCuisine : key === 'location' ? setLocation : setRating;
+          const setter =
+            key === 'cuisine' ? setCuisine : key === 'location' ? setLocation : setRating;
 
           return (
             <select
