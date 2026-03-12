@@ -34,7 +34,7 @@ class RestaurantSeeder extends Seeder
                 'name' => $data['name'],
                 'location' => $data['location'],
                 'cuisine' => $data['cuisine'],
-                'rating' => null, // not present in JSON — nullable
+                'rating' => mt_rand(0, 50) / 10,
             ]);
         }
 

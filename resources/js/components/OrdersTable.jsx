@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useOrders } from '../hooks/useOrders';
+import useDebounce from '../hooks/useDebounce';
 
 const STATUS_LABELS = {
   0: 'Failed',
@@ -15,20 +16,62 @@ const STATUS_STYLES = {
   3: 'bg-blue-50 text-blue-700 border-blue-200',
 };
 
+const FILTER_BAR = [
+  { label: 'Date From', type: 'date', key: 'start_date' },
+  { label: 'Date To', type: 'date', key: 'end_date' },
+  { label: 'Min Amount', type: 'number', key: 'min_amount', placeholder: '0', min: 0, className: 'w-24' },
+  { label: 'Max Amount', type: 'number', key: 'max_amount', placeholder: '∞', min: 0, className: 'w-24' },
+  { label: 'Hour From', type: 'number', key: 'hour_from', placeholder: '0', min: 0, max: 23, className: 'w-20' },
+  { label: 'Hour To', type: 'number', key: 'hour_to', placeholder: '23', min: 0, max: 23, className: 'w-20' },
+  {
+    label: 'Status',
+    type: 'select',
+    key: 'status',
+    options: [
+      { value: '', label: 'All Statuses' },
+      ...Object.entries(STATUS_LABELS).map(([val, name]) => ({ value: val, label: name })),
+    ],
+    className: 'w-32',
+  },
+];
+
+const COLUMNS = [
+  { label: '#', sortKey: 'id' },
+  { label: 'Restaurant', sortKey: 'restaurant' },
+  { label: 'Amount', sortKey: 'amount' },
+  { label: 'Status', sortKey: 'status' },
+  { label: 'Date', sortKey: 'date' },
+  { label: 'Hour', sortKey: 'hour' },
+];
+
 export default function OrdersTable({ lockedRestaurantId }) {
   const [filters, setFilters] = useState({
     restaurant_id: lockedRestaurantId ?? '',
+    status: '',
     start_date: '',
     end_date: '',
     min_amount: '',
     max_amount: '',
     hour_from: '',
     hour_to: '',
-    page: 1,
-    per_page: 15,
+    sort_by: 'date',
+    sort_dir: 'desc',
   });
 
-  const { data, isLoading, isError } = useOrders(filters);
+  const [page, setPage] = useState(1);
+  const per_page = 15;
+
+  const debouncedFilters = useDebounce(filters, 500);
+
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedFilters]);
+
+  const { data, isLoading, isError } = useOrders({
+    ...debouncedFilters,
+    page,
+    per_page,
+  });
 
   const orders = data?.data ?? [];
   const meta = data?.meta ?? {};
@@ -36,24 +79,30 @@ export default function OrdersTable({ lockedRestaurantId }) {
   const lastPage = meta.last_page ?? 1;
 
   function setFilter(key, value) {
-    setFilters((prev) => ({ ...prev, [key]: value, page: 1 }));
-  }
-
-  function setPage(page) {
-    setFilters((prev) => ({ ...prev, page }));
+    setFilters((prev) => ({ ...prev, [key]: value }));
   }
 
   function resetFilters() {
     setFilters({
       restaurant_id: lockedRestaurantId ?? '',
+      status: '',
       start_date: '',
       end_date: '',
       min_amount: '',
       max_amount: '',
       hour_from: '',
       hour_to: '',
-      page: 1,
-      per_page: 15,
+      sort_by: 'date',
+      sort_dir: 'desc',
+    });
+    setPage(1);
+  }
+
+  function handleSort(key) {
+    setFilters((prev) => {
+      const isSameKey = prev.sort_by === key;
+      const newDir = isSameKey && prev.sort_dir === 'desc' ? 'asc' : 'desc';
+      return { ...prev, sort_by: key, sort_dir: newDir };
     });
   }
 
@@ -61,81 +110,34 @@ export default function OrdersTable({ lockedRestaurantId }) {
     <div className="bg-white rounded-xl border border-gray-200">
       {/* Filter bar */}
       <div className="p-4 border-b border-gray-100 flex flex-wrap gap-3 items-end">
-        <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Date From</label>
-          <input
-            type="date"
-            value={filters.start_date}
-            onChange={(e) => setFilter('start_date', e.target.value)}
-            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm outline-none
-              focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-          />
-        </div>
-
-        <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Date To</label>
-          <input
-            type="date"
-            value={filters.end_date}
-            onChange={(e) => setFilter('end_date', e.target.value)}
-            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm outline-none
-              focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-          />
-        </div>
-
-        <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Min Amount</label>
-          <input
-            type="number"
-            min={0}
-            value={filters.min_amount}
-            placeholder="0"
-            onChange={(e) => setFilter('min_amount', e.target.value)}
-            className="w-24 rounded-lg border border-gray-300 px-3 py-1.5 text-sm outline-none
-              focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-          />
-        </div>
-
-        <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Max Amount</label>
-          <input
-            type="number"
-            min={0}
-            value={filters.max_amount}
-            placeholder="∞"
-            onChange={(e) => setFilter('max_amount', e.target.value)}
-            className="w-24 rounded-lg border border-gray-300 px-3 py-1.5 text-sm outline-none
-              focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-          />
-        </div>
-
-        <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Hour From</label>
-          <input
-            type="number"
-            min={0}
-            max={23}
-            value={filters.hour_from}
-            placeholder="0"
-            onChange={(e) => setFilter('hour_from', e.target.value)}
-            className="w-20 rounded-lg border border-gray-300 px-3 py-1.5 text-sm outline-none
-              focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-          />
-        </div>
-
-        <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Hour To</label>
-          <input
-            type="number"
-            min={0}
-            max={23}
-            value={filters.hour_to}
-            placeholder="23"
-            onChange={(e) => setFilter('hour_to', e.target.value)}
-            className="w-20 rounded-lg border border-gray-300 px-3 py-1.5 text-sm outline-none
-              focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-          />
-        </div>
+        {FILTER_BAR.map(({ label, type, key, placeholder, min, max, options, className = '' }) => (
+          <div key={key}>
+            <label className="block text-xs font-medium text-gray-600 mb-1">{label}</label>
+            {type === 'select' ? (
+              <select
+                value={filters[key]}
+                onChange={(e) => setFilter(key, e.target.value)}
+                className={`${className} rounded-lg border border-gray-300 px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent bg-white`}
+              >
+                {options.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type={type}
+                min={min}
+                max={max}
+                value={filters[key]}
+                placeholder={placeholder}
+                onChange={(e) => setFilter(key, e.target.value)}
+                className={`${className} rounded-lg border border-gray-300 px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent`}
+              />
+            )}
+          </div>
+        ))}
 
         <button
           onClick={resetFilters}
@@ -150,12 +152,20 @@ export default function OrdersTable({ lockedRestaurantId }) {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-100 bg-gray-50 text-left">
-              {['#', 'Restaurant', 'Amount', 'Status', 'Date', 'Hour'].map((h) => (
+              {COLUMNS.map(({ label, sortKey }) => (
                 <th
-                  key={h}
-                  className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+                  key={label}
+                  onClick={() => handleSort(sortKey)}
+                  className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide cursor-pointer hover:bg-gray-100 transition whitespace-nowrap"
                 >
-                  {h}
+                  <div className="flex items-center gap-1">
+                    {label}
+                    {filters.sort_by === sortKey && (
+                      <span className="text-gray-900">
+                        {filters.sort_dir === 'asc' ? '↑' : '↓'}
+                      </span>
+                    )}
+                  </div>
                 </th>
               ))}
             </tr>
@@ -222,19 +232,19 @@ export default function OrdersTable({ lockedRestaurantId }) {
           </span>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setPage(filters.page - 1)}
-              disabled={filters.page <= 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page <= 1}
               className="rounded px-3 py-1 text-xs border border-gray-200 text-gray-600
                 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
             >
               ← Prev
             </button>
             <span className="text-xs text-gray-500">
-              Page {filters.page} of {lastPage}
+              Page {page} of {lastPage}
             </span>
             <button
-              onClick={() => setPage(filters.page + 1)}
-              disabled={filters.page >= lastPage}
+              onClick={() => setPage((p) => Math.min(lastPage, p + 1))}
+              disabled={page >= lastPage}
               className="rounded px-3 py-1 text-xs border border-gray-200 text-gray-600
                 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
             >

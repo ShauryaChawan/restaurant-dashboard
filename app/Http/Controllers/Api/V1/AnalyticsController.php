@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Models\Restaurant;
+use App\Enums\OrderStatus;
 use App\Services\AnalyticsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -83,6 +84,9 @@ class AnalyticsController extends ApiController
      *   max_amount    — numeric >= 0
      *   hour_from     — integer 0–23
      *   hour_to       — integer 0–23
+     *   status        — integer 0-3
+     *   sort_by       — string
+     *   sort_dir      — string (asc/desc)
      *   per_page      — integer 1–50 (default 15)
      */
     public function orders(Request $request): JsonResponse
@@ -95,11 +99,24 @@ class AnalyticsController extends ApiController
             'max_amount' => ['nullable', 'numeric', 'min:0'],
             'hour_from' => ['nullable', 'integer', 'min:0', 'max:23'],
             'hour_to' => ['nullable', 'integer', 'min:0', 'max:23'],
+            'status' => ['nullable', 'integer', 'between:0,3'],
+            'sort_by' => ['nullable', 'string', 'in:id,restaurant,amount,status,date,hour'],
+            'sort_dir' => ['nullable', 'string', 'in:asc,desc'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:50'],
         ]);
 
         $paginator = $this->analyticsService->getOrders($validated);
 
         return $this->success($paginator, 'Orders fetched successfully.');
+    }
+
+    /**
+     * GET /api/v1/analytics/orders/statuses
+     *
+     * Returns a key-value pair of all possible order statuses.
+     */
+    public function statuses(): JsonResponse
+    {
+        return $this->success(OrderStatus::options(), 'Order statuses fetched successfully.');
     }
 }

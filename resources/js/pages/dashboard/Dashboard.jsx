@@ -9,8 +9,13 @@ function defaultDates() {
   return {
     startDate: start.toISOString().split('T')[0],
     endDate: end.toISOString().split('T')[0],
-  };
+};
 }
+
+const DATE_FILTERS = [
+  { label: 'From', key: 'startDate' },
+  { label: 'To', key: 'endDate' },
+];
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -34,26 +39,17 @@ export default function Dashboard() {
             <p className="text-sm text-gray-500 mt-0.5">Top 3 restaurants by revenue</p>
           </div>
           <div className="sm:ml-auto flex flex-wrap items-end gap-3">
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">From</label>
-              <input
-                type="date"
-                value={dateInput.startDate}
-                onChange={(e) => setDateInput((p) => ({ ...p, startDate: e.target.value }))}
-                className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none
-                  focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">To</label>
-              <input
-                type="date"
-                value={dateInput.endDate}
-                onChange={(e) => setDateInput((p) => ({ ...p, endDate: e.target.value }))}
-                className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none
-                  focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-              />
-            </div>
+            {DATE_FILTERS.map(({ label, key }) => (
+              <div key={key}>
+                <label className="block text-xs font-medium text-gray-600 mb-1">{label}</label>
+                <input
+                  type="date"
+                  value={dateInput[key]}
+                  onChange={(e) => setDateInput((p) => ({ ...p, [key]: e.target.value }))}
+                  className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                />
+              </div>
+            ))}
             <button
               onClick={() => setDates(dateInput)}
               className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white

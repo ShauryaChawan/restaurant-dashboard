@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRestaurants } from '../../hooks/useRestaurants';
+import useDebounce from '../../hooks/useDebounce';
 
 /**
  * RestaurantList Page
@@ -9,11 +10,49 @@ import { useRestaurants } from '../../hooks/useRestaurants';
  * Uses TanStack Query via useRestaurants hook for all data fetching.
  * Navigates to analytics page on row click.
  */
+
+const FILTER_CONFIG = [
+  {
+    key: 'cuisine',
+    options: [
+      { label: 'All Cuisines', val: '' },
+      { label: 'North Indian', val: 'North Indian' },
+      { label: 'Japanese', val: 'Japanese' },
+      { label: 'Italian', val: 'Italian' },
+      { label: 'American', val: 'American' },
+    ],
+    className: 'px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent',
+  },
+  {
+    key: 'location',
+    options: [
+      { label: 'All Locations', val: '' },
+      { label: 'Bangalore', val: 'Bangalore' },
+      { label: 'Mumbai', val: 'Mumbai' },
+      { label: 'Delhi', val: 'Delhi' },
+      { label: 'Hyderabad', val: 'Hyderabad' },
+    ],
+    className: 'px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent',
+  },
+  {
+    key: 'rating',
+    options: [
+      { label: 'All Ratings', val: '' },
+      { label: '4+ Stars', val: '4' },
+      { label: '3+ Stars', val: '3' },
+      { label: '2+ Stars', val: '2' },
+    ],
+    style: { padding: '8px' },
+  },
+];
+
 export default function RestaurantList() {
   const navigate = useNavigate();
 
   // ── Filter State ───────────────────────────────────────────────────
-  const [search, setSearch] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const debouncedSearch = useDebounce(searchInput, 500);
+
   const [cuisine, setCuisine] = useState('');
   const [location, setLocation] = useState('');
   const [rating, setRating] = useState('');
@@ -21,9 +60,14 @@ export default function RestaurantList() {
   const [sortDir, setSortDir] = useState('asc');
   const [page, setPage] = useState(1);
 
+  // Reset page to 1 when filters or sort change
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, cuisine, location, rating, sortBy, sortDir]);
+
   // ── Query Params ───────────────────────────────────────────────────
   const params = {
-    ...(search && { search }),
+    ...(debouncedSearch && { search: debouncedSearch }),
     ...(cuisine && { cuisine }),
     ...(location && { location }),
     ...(rating && { rating }),
@@ -76,46 +120,36 @@ export default function RestaurantList() {
         <input
           type="text"
           placeholder="Search name, cuisine, location..."
-          value={search}
-          onChange={handleFilterChange(setSearch)}
+          value={searchInput}
+          onChange={handleFilterChange(setSearchInput)}
           className="px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent flex-1 min-w-64"
         />
 
-        <select
-          value={cuisine}
-          onChange={handleFilterChange(setCuisine)}
-          className="px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-        >
-          <option value="">All Cuisines</option>
-          <option value="North Indian">North Indian</option>
-          <option value="Japanese">Japanese</option>
-          <option value="Italian">Italian</option>
-          <option value="American">American</option>
-        </select>
+        {FILTER_CONFIG.map(({ key, options, className = '', style = {} }, idx) => {
+          const value = key === 'cuisine' ? cuisine : key === 'location' ? location : rating;
+          const setter = key === 'cuisine' ? setCuisine : key === 'location' ? setLocation : setRating;
 
-        <select
-          value={location}
-          onChange={handleFilterChange(setLocation)}
-          className="px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-        >
-          <option value="">All Locations</option>
-          <option value="Bangalore">Bangalore</option>
-          <option value="Mumbai">Mumbai</option>
-          <option value="Delhi">Delhi</option>
-          <option value="Hyderabad">Hyderabad</option>
-        </select>
-
-        <select value={rating} onChange={handleFilterChange(setRating)} style={{ padding: '8px' }}>
-          <option value="">All Ratings</option>
-          <option value="4">4+ Stars</option>
-          <option value="3">3+ Stars</option>
-          <option value="2">2+ Stars</option>
-        </select>
+          return (
+            <select
+              key={idx}
+              value={value}
+              onChange={handleFilterChange(setter)}
+              className={className}
+              style={style}
+            >
+              {options.map((opt) => (
+                <option key={opt.val} value={opt.val}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          );
+        })}
 
         {/* Clear all filters */}
         <button
           onClick={() => {
-            setSearch('');
+            setSearchInput('');
             setCuisine('');
             setLocation('');
             setRating('');

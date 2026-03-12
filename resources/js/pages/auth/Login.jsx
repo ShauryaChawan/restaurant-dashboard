@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { login } from '../../api/auth';
+import { toast } from 'react-hot-toast';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -14,6 +15,14 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   const justRegistered = searchParams.get('registered') === '1';
+
+  useEffect(() => {
+    if (justRegistered) {
+      toast.success('Account created — you can now sign in.', { id: 'registered-toast' });
+      searchParams.delete('registered');
+      navigate({ search: searchParams.toString() }, { replace: true });
+    }
+  }, [justRegistered, navigate, searchParams]);
 
   function handleChange(e) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -59,11 +68,6 @@ export default function Login() {
         </div>
 
         <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
-          {justRegistered && (
-            <div className="mb-4 rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-700">
-              Account created — you can now sign in.
-            </div>
-          )}
 
           {serverError && (
             <div className="mb-4 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">

@@ -130,38 +130,67 @@ class AnalyticsService
     {
         $perPage = min((int) ($filters['per_page'] ?? 15), self::MAX_PER_PAGE);
 
-        return Order::query()
+        $query = Order::query()
+            ->select('orders.*')
             ->with('restaurant:id,name')
             ->when(
                 isset($filters['restaurant_id']),
-                fn ($q) => $q->where('restaurant_id', $filters['restaurant_id'])
+                fn ($q) => $q->where('orders.restaurant_id', $filters['restaurant_id'])
+            )
+            ->when(
+                isset($filters['status']),
+                fn ($q) => $q->where('orders.status', $filters['status'])
             )
             ->when(
                 isset($filters['start_date']),
-                fn ($q) => $q->where('ordered_at', '>=', Carbon::parse($filters['start_date'])->startOfDay())
+                fn ($q) => $q->where('orders.ordered_at', '>=', Carbon::parse($filters['start_date'])->startOfDay())
             )
             ->when(
                 isset($filters['end_date']),
-                fn ($q) => $q->where('ordered_at', '<=', Carbon::parse($filters['end_date'])->endOfDay())
+                fn ($q) => $q->where('orders.ordered_at', '<=', Carbon::parse($filters['end_date'])->endOfDay())
             )
             ->when(
                 isset($filters['min_amount']),
-                fn ($q) => $q->where('order_amount', '>=', (float) $filters['min_amount'])
+                fn ($q) => $q->where('orders.order_amount', '>=', (float) $filters['min_amount'])
             )
             ->when(
                 isset($filters['max_amount']),
-                fn ($q) => $q->where('order_amount', '<=', (float) $filters['max_amount'])
+                fn ($q) => $q->where('orders.order_amount', '<=', (float) $filters['max_amount'])
             )
             ->when(
                 isset($filters['hour_from']),
-                fn ($q) => $q->whereRaw('HOUR(ordered_at) >= ?', [(int) $filters['hour_from']])
+                fn ($q) => $q->whereRaw('HOUR(orders.ordered_at) >= ?', [(int) $filters['hour_from']])
             )
             ->when(
                 isset($filters['hour_to']),
-                fn ($q) => $q->whereRaw('HOUR(ordered_at) <= ?', [(int) $filters['hour_to']])
-            )
-            ->orderBy('ordered_at', 'desc')
-            ->paginate($perPage);
+                fn ($q) => $q->whereRaw('HOUR(orders.ordered_at) <= ?', [(int) $filters['hour_to']])
+            );
+
+        $sortBy = $filters['sort_by'] ?? 'date';
+        $sortDir = $filters['sort_dir'] ?? 'desc';
+
+        if ($sortBy === 'restaurant') {
+            $query->join('restaurants', 'orders.restaurant_id', '=', 'restaurants.id')
+                  ->orderBy('restaurants.name', $sortDir);
+        } else {
+            $sortColumn = match ($sortBy) {
+                'id' => 'orders.id',
+                'amount' => 'orders.order_amount',
+                'status' => 'orders.status',
+                'hour' => DB::raw('HOUR(orders.ordered_at)'),
+                'date', 'default' => 'orders.ordered_at',
+            };
+            
+            // For date with same day, we also probably want to fallback to id
+            $query->orderBy($sortColumn, $sortDir);
+        }
+
+        // Add a secondary sort by ID to ensure stable pagination
+        if ($sortBy !== 'id') {
+            $query->orderBy('orders.id', 'desc');
+        }
+
+        return $query->paginate($perPage);
     }
 
     // ----------------------------------------
